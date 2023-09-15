@@ -1,3 +1,5 @@
+using advice_generator_app_api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace advice_generator_app_api
 {
@@ -11,6 +13,9 @@ namespace advice_generator_app_api
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddDbContext<AdviceItemContext>(
+                options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+                );
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
