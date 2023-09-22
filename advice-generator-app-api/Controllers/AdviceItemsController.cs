@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using advice_generator_app_api.Dto;
+using advice_generator_app_api.Interfaces;
 using advice_generator_app_api.Models;
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 
 namespace advice_generator_app_api.Controllers
 {
@@ -13,44 +10,64 @@ namespace advice_generator_app_api.Controllers
     [ApiController]
     public class AdviceItemsController : ControllerBase
     {
-        private readonly AdviceItemContext _context;
+        private readonly IAdviceItemRepository _adviceItemRepository;
+        private readonly IMapper _mapper;
 
-        public AdviceItemsController(AdviceItemContext context)
+        public AdviceItemsController(IAdviceItemRepository adviceItemRepository, IMapper mapper)
         {
-            _context = context;
+            _adviceItemRepository = adviceItemRepository;
+            _mapper = mapper;
         }
+
 
         // GET: api/AdviceItems
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AdviceItem>>> GetAdviceItems()
+        [ProducesResponseType(typeof(IEnumerable<AdviceItem>), 200)]
+        public IActionResult GetAdviceItems()
         {
-          if (_context.AdviceItems == null)
-          {
-              return NotFound();
-          }
-            return await _context.AdviceItems.ToListAsync();
+            var AdviceItems = _mapper.Map<List<AdviceItemDto>>(_adviceItemRepository.GetAdviceItems());
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            return Ok(AdviceItems);
         }
+
 
         // GET: api/AdviceItems/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<AdviceItem>> GetAdviceItem(int id)
+        /*[HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(AdviceItem), 200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetAdviceItem(int id)
         {
-          if (_context.AdviceItems == null)
-          {
-              return NotFound();
-          }
-            var adviceItem = await _context.AdviceItems.FindAsync(id);
+            if (!_adviceItemRepository.AdviceItemExists(id)) return NotFound();
 
-            if (adviceItem == null)
-            {
-                return NotFound();
-            }
+            var adviceItem = _adviceItemRepository.GetAdviceItem(id);
 
-            return adviceItem;
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            return Ok(adviceItem);
+        }*/
+
+
+        // GET: api/AdviceItems/law1
+        [HttpGet("{name}")]
+        [ProducesResponseType(typeof(AdviceItem), 200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetAdviceItem(string name)
+        {
+            if (!_adviceItemRepository.AdviceItemExists(name)) return NotFound();
+
+            var adviceItem = _mapper.Map<AdviceItemDto>(_adviceItemRepository.GetAdviceItem(name));
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            return Ok(adviceItem);
         }
+
 
         // PUT: api/AdviceItems/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /*
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAdviceItem(int id, AdviceItem adviceItem)
         {
@@ -79,9 +96,11 @@ namespace advice_generator_app_api.Controllers
 
             return NoContent();
         }
+        */
 
         // POST: api/AdviceItems
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /*
         [HttpPost]
         public async Task<ActionResult<AdviceItem>> PostAdviceItem(AdviceItem adviceItem)
         {
@@ -94,8 +113,10 @@ namespace advice_generator_app_api.Controllers
 
             return CreatedAtAction("GetAdviceItem", new { id = adviceItem.Id }, adviceItem);
         }
+        */
 
         // DELETE: api/AdviceItems/5
+        /*
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAdviceItem(int id)
         {
@@ -114,10 +135,13 @@ namespace advice_generator_app_api.Controllers
 
             return NoContent();
         }
+        */
 
+        /*
         private bool AdviceItemExists(int id)
         {
             return (_context.AdviceItems?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+        */
     }
 }

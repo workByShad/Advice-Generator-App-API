@@ -1,4 +1,6 @@
-using advice_generator_app_api.Models;
+using advice_generator_app_api.Data;
+using advice_generator_app_api.Interfaces;
+using advice_generator_app_api.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace advice_generator_app_api
@@ -16,6 +18,8 @@ namespace advice_generator_app_api
             builder.Services.AddDbContext<AdviceItemContext>(
                 options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
                 );
+            builder.Services.AddScoped<IAdviceItemRepository, AdviceItemRepository>();
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
